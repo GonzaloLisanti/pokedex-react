@@ -61,7 +61,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
       {showSuggestions && suggestions.length > 0 && (
         <div
-          className="suggestions-container"
+          className="suggestions-container text-dark"
           style={{
             position: "absolute",
             top: "100%",

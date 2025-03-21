@@ -1,72 +1,111 @@
-// hooks/usePokemonData.ts
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Pokemon, PokemonAbility, PokemonType } from "../interfaces/Pokemon";
+import { Pokemon, PokemonType, TypeTranslation } from "../interfaces/Pokemon";
+
+// Cache para almacenar traducciones de tipos
+const typeCache = new Map<string, string>();
 
 const usePokemonData = () => {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [filteredPokemon, setFilteredPokemon] = useState<Pokemon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(true); // Para manejar la carga de detalles
+
+  // Función para obtener traducciones de tipos con cache
+  const getCachedTypeTranslation = async (
+    typeName: string,
+    typeUrl: string
+  ): Promise<string> => {
+    if (typeCache.has(typeName)) return typeCache.get(typeName)!;
+
+    try {
+      const response = await axios.get<TypeTranslation>(typeUrl);
+      const spanishName =
+        response.data.names.find((n) => n.language.name === "es")?.name ||
+        typeName;
+      typeCache.set(typeName, spanishName);
+      return spanishName;
+    } catch (error) {
+      console.error(`Error fetching type for ${typeName}:`, error);
+      return typeName;
+    }
+  };
 
   useEffect(() => {
     const fetchAllPokemons = async () => {
       try {
-        // Paso 1: Obtener la lista básica de Pokémon
-        const response = await axios.get("https://pokeapi.co/api/v2/pokemon?limit=1025");
+        const response = await axios.get(
+          "https://pokeapi.co/api/v2/pokemon?limit=1025"
+        );
         const basicList = response.data.results;
 
-        // Paso 2: Almacenar la lista básica
-        setPokemonList(basicList);
-        setFilteredPokemon(basicList);
-
-        // Paso 3: Cargar los detalles de todos los Pokémon en lotes
-        const batchSize = 20; // Número de Pokémon por lote
+        const batchSize = 20;
         const allPokemonDetails: Pokemon[] = [];
+        let initialBatchLoaded = false;
 
         for (let i = 0; i < basicList.length; i += batchSize) {
           const batch = basicList.slice(i, i + batchSize);
-          const batchDetails = await Promise.all(
+          const batchDetails = await Promise.allSettled(
             batch.map(async (pokemon: { name: string; url: string }) => {
-              const id = parseInt(pokemon.url.split("/")[6], 10);
-              const detailsResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
-              return {
-                name: detailsResponse.data.name,
-                url: pokemon.url,
-                id: detailsResponse.data.id,
-                types: detailsResponse.data.types.map((t: PokemonType) => ({
-                  slot: t.slot,
-                  type: { name: t.type.name, url: t.type.url },
-                })),
-                abilities: detailsResponse.data.abilities.map((a: PokemonAbility) => ({
-                  ability: { name: a.ability.name, url: a.ability.url },
-                  is_hidden: a.is_hidden,
-                  slot: a.slot,
-                })),
-                height: detailsResponse.data.height,
-                weight: detailsResponse.data.weight,
-              };
+              try {
+                const id = parseInt(pokemon.url.split("/")[6], 10);
+                const detailsResponse = await axios.get(
+                  `https://pokeapi.co/api/v2/pokemon/${id}`
+                );
+
+                // Procesar tipos con cache
+                const types = await Promise.all(
+                  detailsResponse.data.types.map(async (t: PokemonType) => {
+                    const typeName = t.type.name;
+                    const translatedName = await getCachedTypeTranslation(
+                      typeName,
+                      t.type.url
+                    );
+                    return {
+                      slot: t.slot,
+                      type: {
+                        name: translatedName,
+                        url: t.type.url,
+                      },
+                    };
+                  })
+                );
+
+                return {
+                  name: detailsResponse.data.name,
+                  url: pokemon.url,
+                  id: detailsResponse.data.id,
+                  types,
+                  abilities: detailsResponse.data.abilities, // Mantenemos inglés temporalmente
+                  height: detailsResponse.data.height,
+                  weight: detailsResponse.data.weight,
+                };
+              } catch (error) {
+                console.error("Error processing Pokémon details:", error);
+                return null;
+              }
             })
           );
 
-          allPokemonDetails.push(...batchDetails);
+          const validDetails = batchDetails
+            .filter(
+              (result) => result.status === "fulfilled" && result.value !== null
+            )
+            .map((result) => (result as PromiseFulfilledResult<Pokemon>).value);
+          allPokemonDetails.push(...validDetails);
 
-          // Si es el primer lote, mostrar los primeros 20 Pokémon rápidamente
-          if (i === 0) {
-            setPokemonList(allPokemonDetails);
-            setFilteredPokemon(allPokemonDetails);
-            setIsLoading(false); // Ocultar el spinner inicial
+          if (!initialBatchLoaded) {
+            setPokemonList(validDetails);
+            setFilteredPokemon(validDetails);
+            setIsLoading(false);
+            initialBatchLoaded = true;
           }
         }
 
-        // Paso 4: Almacenar todos los detalles
         setPokemonList(allPokemonDetails);
         setFilteredPokemon(allPokemonDetails);
-        setIsLoadingDetails(false); // Finalizar la carga de detalles
       } catch (error) {
-        console.error("Error al obtener los Pokémon:", error);
+        console.error("Error fetching Pokémon list:", error);
         setIsLoading(false);
-        setIsLoadingDetails(false);
       }
     };
 
@@ -77,7 +116,6 @@ const usePokemonData = () => {
     pokemonList,
     filteredPokemon,
     isLoading,
-    isLoadingDetails,
     setFilteredPokemon,
   };
 };

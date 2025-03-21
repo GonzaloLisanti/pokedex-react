@@ -1,0 +1,47 @@
+.loader {
+    width: 60px; /* Tamaño de la Pokéball */
+    height: 60px;
+    border: 2px solid #000; /* Borde exterior */
+    border-radius: 50%;
+    position: relative;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 0, 0, 0.855) 50%,
+      #fff 50%
+    ); /* Mitad roja y mitad blanca */
+    animation: rotate 1s linear infinite;
+  }
+  
+  .loader:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px; /* Tamaño del círculo central */
+    height: 20px;
+    background: #fff; /* Fondo blanco del círculo central */
+    border: 1px solid #000; /* Borde del círculo central */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .loader:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px; /* Tamaño del círculo interior */
+    height: 10px;
+    background: #000; /* Color del círculo interior */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }

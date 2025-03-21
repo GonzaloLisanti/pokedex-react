@@ -17,12 +17,15 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   pokemonList,
 }) => {
   return (
-    <div className="rounded shadow" style={{ backgroundColor: "#4e4e4e" }}>
+    <div className="rounded shadow" style={{
+      backgroundImage: "linear-gradient(to top,rgb(134, 134, 134), #4e4e4e)",
+      color: "white",
+    }}>
       <div className="d-flex justify-content-center ms-5 lead pt-3 text-white w-50">
         <strong>Nombre o Número</strong>
       </div>
       <div className="d-flex flex-wrap align-items-center justify-content-between w-75 mb-4 mx-auto">
-        <div className="flex-grow-1 me-3 mb-2" style={{ maxWidth: "400px" }}>
+        <div className="flex-grow-1 me-3 mb-4" style={{ maxWidth: "400px" }}>
           <SearchBar
             search={search}
             setSearch={setSearch}

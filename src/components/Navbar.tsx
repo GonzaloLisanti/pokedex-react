@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
     };
     if (currentPath === "/pok%C3%A9dex") {
       setIspokedex(true);
-    }else{
+    } else {
       setIspokedex(false);
     }
 
@@ -30,12 +30,17 @@ const Navbar: React.FC = () => {
 
   const linkHoverColor = bgColor === "transparent" ? "#FFCC00" : "white";
 
+  // Función para cerrar el menú
+  const closeMenu = () => {
+    setIsOpen(false);
+  };
+
   return (
     <nav
       className="navbar navbar-expand-lg fixed-top"
       style={{
         backgroundColor: bgColor,
-        transition: "1s ease-in-out",
+        transition: "0.5s ease-in-out",
         padding: "10px 20px",
         zIndex: 1000,
         minHeight: isOpen ? "200px" : "60px", // 💡 El navbar crece con el menú
@@ -46,7 +51,7 @@ const Navbar: React.FC = () => {
       }}
     >
       <div className="container-fluid">
-        <Link to="/" className="navbar-brand">
+        <Link to="/" className="navbar-brand" onClick={closeMenu}>
           <img src={logo} alt="Logo Pokémon" height="50px" />
         </Link>
 
@@ -65,7 +70,7 @@ const Navbar: React.FC = () => {
           id="navbarNav"
           style={{
             width: "100%",
-            transition: "1s ease-in-out", // 💡 Misma transición que el navbar
+            transition: "0.5s ease-in-out", // 💡 Misma transición que el navbar
             backgroundColor: "inherit", // 💡 Hereda el color del navbar
             padding: isOpen ? "10px 0" : "0", // 💡 Suaviza la expansión
           }}
@@ -86,6 +91,7 @@ const Navbar: React.FC = () => {
                   (e.currentTarget.style.color = linkHoverColor)
                 }
                 onMouseLeave={(e) => (e.currentTarget.style.color = "#FFCC00")}
+                onClick={closeMenu} // Cerrar el menú al hacer clic
               >
                 {text}
               </Link>
