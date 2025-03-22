@@ -11,3 +11,72 @@ div.card:hover {
   transition: filter 0.3s ease-in-out;
 }
   
+/* Estilos base para la tarjeta */
+.pokemon-card-container {
+  position: relative;
+  width: 13rem;
+  margin: 0.5rem;
+}
+
+.card {
+  width: 13rem;
+  background: #ffffff;
+  border: none;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  filter: drop-shadow(0px 10px 10px rgba(0, 0, 0, 0.5));
+}
+
+.card-shadow {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  filter: blur(8px);
+  border-radius: 0.5rem;
+  z-index: -2;
+}
+
+.card-border {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 0.375rem;
+  z-index: -1;
+}
+
+.card-inner-border {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: #ffffff;
+  border-radius: 0.25rem;
+}
+
+/* Estilos para dispositivos móviles (pantallas menores a 768px) */
+@media (max-width: 768px) {
+  .pokemon-card-container {
+    width: 18rem; /* Aumenta el tamaño de la tarjeta en móviles */
+  }
+
+  .card {
+    width: 18rem; /* Aumenta el tamaño de la tarjeta en móviles */
+  }
+
+  .typesP {
+    font-size: 1rem; /* Tamaño más grande para móviles */
+    padding: 0.75rem 1.25rem; /* Padding más grande para móviles */
+  }
+  
+}

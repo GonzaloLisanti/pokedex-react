@@ -49,7 +49,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         className="btn px-2 btn-lg"
         style={{
-          background: "linear-gradient(to bottom, #D32F2F 50%, #FFFFFF 50%)",
+          background: "linear-gradient(to bottom, #e03232 50%, #FFFFFF 50%)",
           border: "2px solid black",
           color: "#000",
         }}
@@ -64,12 +64,12 @@ const Pagination: React.FC<PaginationProps> = ({
         typeof page === "number" ? (
           <button
             key={index}
-            className="btn px-3 btn-lg"
+            className="btn d-flex justify-content-center align-items-center"
             style={{
               background:
                 page === currentPage
                   ? "linear-gradient(to bottom, #9c1818 50%, #E0E0E0 50%)"
-                  : "linear-gradient(to bottom, #D32F2F 50%, #FFFFFF 50%)",
+                  : "linear-gradient(to bottom, #e03232 50%, #FFFFFF 50%)",
               border: "2px solid black",
               color: "#000",
               fontWeight: "bold",
@@ -79,7 +79,7 @@ const Pagination: React.FC<PaginationProps> = ({
             {page}
           </button>
         ) : (
-          <span key={index} className="text-muted fs-5  ">
+          <span key={index} className="text-muted fs-5">
             ...
           </span>
         )
@@ -89,7 +89,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         className="btn px-2 btn-lg"
         style={{
-          background: "linear-gradient(to bottom, #D32F2F 50%, #FFFFFF 50%)",
+          background: "linear-gradient(to bottom, #e03232 50%, #FFFFFF 50%)",
           border: "2px solid black",
           color: "#000",
         }}

@@ -19,7 +19,7 @@ const PokemonList: React.FC<PokemonListProps> = ({
 }) => {
   return (
     <>
-      <div className="d-flex flex-wrap justify-content-center">
+      <div className="d-flex flex-wrap justify-content-center gap-1">
         {pokemonToShow.map((pokemon) => (
           <PokemonCard
             key={pokemon.id}

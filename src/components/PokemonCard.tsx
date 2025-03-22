@@ -52,10 +52,8 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
-   // Obtener colores para el borde y la sombra según los tipos
-   const borderColors = types.map(
-    (t) => typeColors[t.type.name] || "#67d964"
-  );
+  // Obtener colores para el borde y la sombra según los tipos
+  const borderColors = types.map((t) => typeColors[t.type.name] || "#67d964");
 
   const gradient =
     types.length > 1
@@ -63,65 +61,24 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
       : borderColors[0];
 
   return (
-    <div style={{ position: "relative", width: "13rem", margin: "0.5rem" }}>
+    <div className="pokemon-card-container">
       {!isLoaded && (
-        <div style={{ width: "13rem" }}>
+        <div className="pokemon-card-loader d-flex  justify-content-center">
           <div className="pokeLoader"></div>
         </div>
       )}
       <div
         className={`card text-center m-2 p-2 ${isLoaded ? "fade-in" : "d-none"}`}
-        style={{
-          width: "13rem",
-          background: "#ffffff",
-          border: "none",
-          position: "relative",
-          zIndex: 1,
-        }}
       >
         {/* Sombra degradada detrás de la card */}
-        <div
-          style={{
-            content: '""',
-            position: "absolute",
-            top: "5px",
-            left: "5px",
-            right: "-5px",
-            bottom: "-5px",
-            background: gradient,
-            filter: "blur(8px)",
-            borderRadius: "0.5rem",
-            zIndex: -2,
-          }}
-        />
-        
+        <div className="card-shadow" style={{ background: gradient }} />
+
         {/* Contenedor del borde degradado */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-2px",
-            left: "-2px",
-            right: "-2px",
-            bottom: "-2px",
-            background: gradient,
-            borderRadius: "0.375rem",
-            zIndex: -1,
-          }}
-        >
+        <div className="card-border" style={{ background: gradient }}>
           {/* Contenido interno para que el borde se vea bien */}
-          <div
-            style={{
-              position: "absolute",
-              top: "2px",
-              left: "2px",
-              right: "2px",
-              bottom: "2px",
-              background: "#ffffff",
-              borderRadius: "0.25rem",
-            }}
-          />
+          <div className="card-inner-border" />
         </div>
-        
+
         <img
           src={image}
           className="card-img-top rounded"
@@ -143,7 +100,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
               return (
                 <span
                   key={type.type.url}
-                  className="badge rounded-pill px-3"
+                  className="typesP badge rounded-pill px-3"
                   style={{
                     backgroundColor: bgColor,
                     color: textColor,
@@ -159,4 +116,5 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
     </div>
   );
 };
+
 export default PokemonCard;

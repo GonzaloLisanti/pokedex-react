@@ -4,6 +4,7 @@ import usePokemonData from "../hooks/usePokemonData";
 import PokemonList from "../components/PokemonList";
 import SearchSection from "../components/SearchSection";
 import { Pokemon } from "../interfaces/Pokemon";
+import AdvancedFilters from "../components/AdvancedFilters";
 
 const PokeDex: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,6 +92,26 @@ const PokeDex: React.FC = () => {
         handleSearch={handleSearch}
         pokemonList={basicList}
       />
+      <div
+        className="d-flex flex-column align-items-center mb-3 rounded-bottom"
+        style={{ backgroundColor: "#494a51" }}
+      >
+        <a
+          className="btn w-50 lead text-white"
+          data-bs-toggle="collapse"
+          href="#collapseFilters"
+          role="button"
+          aria-expanded="false"
+          aria-controls="collapseFilters"
+          style={{
+            borderBottomLeftRadius: "0px",
+            borderBottomRightRadius: "0px",
+          }}
+        >
+          Búsqueda avanzada <i className="bi bi-arrows-expand fs-5"></i>
+        </a>
+        <AdvancedFilters/>
+      </div>
 
       {isLoadingList ? (
         <div className="d-flex justify-content-center mt-5">
