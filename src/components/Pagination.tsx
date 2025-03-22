@@ -44,10 +44,15 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 py-3">
+    <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 py-3 rounded-top bg-gradient">
       {/* Botón Anterior */}
       <button
-        className="btn btn-primary px-2 btn-lg"
+        className="btn px-2 btn-lg"
+        style={{
+          background: "linear-gradient(to bottom, #D32F2F 50%, #FFFFFF 50%)",
+          border: "2px solid black",
+          color: "#000",
+        }}
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
@@ -59,15 +64,22 @@ const Pagination: React.FC<PaginationProps> = ({
         typeof page === "number" ? (
           <button
             key={index}
-            className={`btn ${
-              page === currentPage ? "btn-danger" : "btn-outline-primary"
-            } px-2 btn-lg`}
+            className="btn px-3 btn-lg"
+            style={{
+              background:
+                page === currentPage
+                  ? "linear-gradient(to bottom, #9c1818 50%, #E0E0E0 50%)"
+                  : "linear-gradient(to bottom, #D32F2F 50%, #FFFFFF 50%)",
+              border: "2px solid black",
+              color: "#000",
+              fontWeight: "bold",
+            }}
             onClick={() => onPageChange(page)}
           >
             {page}
           </button>
         ) : (
-          <span key={index} className="text-muted">
+          <span key={index} className="text-muted fs-5  ">
             ...
           </span>
         )
@@ -75,7 +87,12 @@ const Pagination: React.FC<PaginationProps> = ({
 
       {/* Botón Siguiente */}
       <button
-        className="btn btn-primary px-2 btn-lg"
+        className="btn px-2 btn-lg"
+        style={{
+          background: "linear-gradient(to bottom, #D32F2F 50%, #FFFFFF 50%)",
+          border: "2px solid black",
+          color: "#000",
+        }}
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
