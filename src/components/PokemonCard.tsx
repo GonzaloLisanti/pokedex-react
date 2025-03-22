@@ -52,8 +52,11 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Preparar el borde según los types
-  const borderColors = types.map((t) => typeColors[t.type.name] || "#67d964");
+   // Obtener colores para el borde y la sombra según los tipos
+   const borderColors = types.map(
+    (t) => typeColors[t.type.name] || "#67d964"
+  );
+
   const gradient =
     types.length > 1
       ? `linear-gradient(90deg, ${borderColors[0]} 0%, ${borderColors[1]} 100%)`
@@ -61,24 +64,38 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
 
   return (
     <div style={{ position: "relative", width: "13rem", margin: "0.5rem" }}>
-      {/* Placeholder con animación pokeLoader mientras no se carga la imagen */}
       {!isLoaded && (
         <div style={{ width: "13rem" }}>
-          <div className="pokeLoader" ></div>
+          <div className="pokeLoader"></div>
         </div>
       )}
-      {/* La card se muestra cuando la imagen ya se cargó */}
       <div
-        className={`card text-center m-2 p-2 ${
-          isLoaded ? "fade-in" : "d-none"
-        }`}
+        className={`card text-center m-2 p-2 ${isLoaded ? "fade-in" : "d-none"}`}
         style={{
           width: "13rem",
           background: "#ffffff",
           border: "none",
+          position: "relative",
           zIndex: 1,
         }}
       >
+        {/* Sombra degradada detrás de la card */}
+        <div
+          style={{
+            content: '""',
+            position: "absolute",
+            top: "5px",
+            left: "5px",
+            right: "-5px",
+            bottom: "-5px",
+            background: gradient,
+            filter: "blur(8px)",
+            borderRadius: "0.5rem",
+            zIndex: -2,
+          }}
+        />
+        
+        {/* Contenedor del borde degradado */}
         <div
           style={{
             position: "absolute",
@@ -91,6 +108,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
             zIndex: -1,
           }}
         >
+          {/* Contenido interno para que el borde se vea bien */}
           <div
             style={{
               position: "absolute",
@@ -103,6 +121,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
             }}
           />
         </div>
+        
         <img
           src={image}
           className="card-img-top rounded"
@@ -112,9 +131,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
         />
         <div className="card-body pt-0">
           <div className="d-flex justify-content-start">
-            <span className="text-muted">
-              #{id.toString().padStart(4, "0")}
-            </span>
+            <span className="text-muted">#{id.toString().padStart(4, "0")}</span>
           </div>
           <div className="d-flex justify-content-start">
             <h5 className="card-title text-capitalize">{name}</h5>
@@ -142,5 +159,4 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
     </div>
   );
 };
-
 export default PokemonCard;

@@ -24,7 +24,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
       <div className="d-flex justify-content-center ms-5 lead pt-3 text-white w-50">
         <strong>Nombre o Número</strong>
       </div>
-      <div className="d-flex flex-wrap align-items-center justify-content-between w-75 mb-4 mx-auto">
+      <div className="d-flex flex-wrap align-items-center justify-content-between w-75 mb-3 mx-auto">
         <div className="flex-grow-1 me-3 mb-4" style={{ maxWidth: "400px" }}>
           <SearchBar
             search={search}
