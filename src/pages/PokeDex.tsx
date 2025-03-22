@@ -1,38 +1,78 @@
 // PokeDex.tsx
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import usePokemonData from "../hooks/usePokemonData";
 import PokemonList from "../components/PokemonList";
 import SearchSection from "../components/SearchSection";
+import { Pokemon } from "../interfaces/Pokemon";
 
 const PokeDex: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 20;
+  const [query, setQuery] = useState("");
 
   const {
-    pokemonList,
-    filteredPokemon,
-    isLoading,
-    setFilteredPokemon,
+    basicList,
+    pokemonDetails,
+    isLoadingList,
+    error,
+    fetchDetailsForPage,
   } = usePokemonData();
 
+  // Función que se dispara al buscar
   const handleSearch = () => {
-    if (search.trim()) {
-      const filtered = pokemonList.filter(
-        (pokemon) =>
-          pokemon.name.toLowerCase().includes(search.toLowerCase()) ||
-          pokemon.id.toString() === search
-      );
-      setFilteredPokemon(filtered);
-    } else {
-      setFilteredPokemon(pokemonList);
-    }
+    setQuery(search);
     setCurrentPage(1);
   };
 
+  // Filtrar la lista básica usando `query` en lugar de `search`
+  const filteredList = useMemo(() => {
+    if (!query.trim()) return basicList;
+    return basicList.filter(
+      (pokemon) =>
+        pokemon.name.toLowerCase().includes(query.toLowerCase()) ||
+        pokemon.url.split("/")[6] === query
+    );
+  }, [basicList, query]);
+
+  // Calcular la página actual de la lista filtrada
   const startIndex = (currentPage - 1) * limit;
-  const endIndex = startIndex + limit;
-  const pokemonToShow = filteredPokemon.slice(startIndex, endIndex);
+  const currentPagePokemons = useMemo(() => {
+    return filteredList.slice(startIndex, startIndex + limit);
+  }, [filteredList, startIndex, limit]);
+
+  // Solicitar detalles de la página actual si aún no se han cargado
+  useEffect(() => {
+    fetchDetailsForPage(currentPagePokemons);
+  }, [currentPagePokemons]);
+
+  // Combinar datos básicos con detalles disponibles
+  const pokemonToShow = currentPagePokemons.map((p) => {
+    const id = parseInt(p.url.split("/")[6], 10);
+    const detail = pokemonDetails.get(id);
+    if (detail) {
+      return detail;
+    }
+    // Objeto esqueleto
+    return {
+      id,
+      name: p.name,
+      species: p,
+      types: [],
+      abilities: [],
+      height: 0,
+      weight: 0,
+      sprites: {
+        other: {
+          "official-artwork": {
+            front_default: "", // o una imagen placeholder
+          },
+        },
+      },
+    } as Pokemon;
+  });
+
+  const totalPages = Math.ceil(filteredList.length / limit);
 
   return (
     <div className="container text-center p-0" style={{ marginTop: "100px" }}>
@@ -49,18 +89,20 @@ const PokeDex: React.FC = () => {
         search={search}
         setSearch={setSearch}
         handleSearch={handleSearch}
-        pokemonList={pokemonList}
+        pokemonList={basicList}
       />
 
-      {isLoading ? (
+      {isLoadingList ? (
         <div className="d-flex justify-content-center mt-5">
           <div className="loader"></div>
         </div>
+      ) : error ? (
+        <p>{error}</p>
       ) : (
         <PokemonList
           pokemonToShow={pokemonToShow}
           currentPage={currentPage}
-          totalPages={Math.ceil(filteredPokemon.length / limit)}
+          totalPages={totalPages}
           onPageChange={(page) => setCurrentPage(page)}
         />
       )}

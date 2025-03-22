@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Pokemon } from "../interfaces/Pokemon";
+import { APIResource } from "../interfaces/Pokemon";
 
 interface SearchBarProps {
   search: string;
   setSearch: (search: string) => void;
   handleSearch: () => void;
-  pokemonList: Pokemon[];
+  pokemonList: APIResource[];
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -14,7 +14,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   handleSearch,
   pokemonList,
 }) => {
-  const [suggestions, setSuggestions] = useState<Pokemon[]>([]);
+  const [suggestions, setSuggestions] = useState<APIResource[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false); // Estado para controlar la visibilidad
 
   const normalizeName = (name: string) => {
@@ -28,8 +28,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     if (value.trim()) {
       const filtered = pokemonList.filter(
         (pokemon) =>
-          pokemon.name.toLowerCase().includes(value.toLowerCase()) ||
-          pokemon.url.split("/")[6].includes(value) // Busca por número de Pokédex
+          pokemon.name.toLowerCase().includes(value.toLowerCase()) 
       );
       setSuggestions(filtered);
       setShowSuggestions(true);

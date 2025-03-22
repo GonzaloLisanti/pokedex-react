@@ -1,122 +1,97 @@
+// hooks/usePokemonData.ts
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Pokemon, PokemonType, TypeTranslation } from "../interfaces/Pokemon";
+import { Pokemon, PokeAPIListResponse, TypeTranslation } from "../interfaces/Pokemon";
 
-// Cache para almacenar traducciones de tipos
+const CACHE_VERSION = "1.0";
+const BASE_URL = "https://pokeapi.co/api/v2";
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: { "Accept": "application/json" }
+});
+
+// Cache para las traducciones de types
 const typeCache = new Map<string, string>();
 
+// Función para obtener la traducción de un type al español
+const getTypeTranslation = async (typeUrl: string): Promise<string> => {
+  const cacheKey = `${CACHE_VERSION}_${typeUrl}`;
+  if (typeCache.has(cacheKey)) return typeCache.get(cacheKey)!;
+
+  try {
+    const { data } = await api.get<TypeTranslation>(typeUrl);
+    const spanishName = data.names.find(n => n.language.name === "es")?.name;
+    const fallback = typeUrl.split("/")[6];
+    const finalName = spanishName || fallback;
+    typeCache.set(cacheKey, finalName);
+    return finalName;
+  } catch (err) {
+    console.error("Error fetching type:", err);
+    return "unknown";
+  }
+};
+
 const usePokemonData = () => {
-  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
-  const [filteredPokemon, setFilteredPokemon] = useState<Pokemon[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [basicList, setBasicList] = useState<PokeAPIListResponse["results"]>([]);
+  const [pokemonDetails, setPokemonDetails] = useState<Map<number, Pokemon>>(new Map());
+  const [isLoadingList, setIsLoadingList] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Función para obtener traducciones de tipos con cache
-  const getCachedTypeTranslation = async (
-    typeName: string,
-    typeUrl: string
-  ): Promise<string> => {
-    if (typeCache.has(typeName)) return typeCache.get(typeName)!;
-
-    try {
-      const response = await axios.get<TypeTranslation>(typeUrl);
-      const spanishName =
-        response.data.names.find((n) => n.language.name === "es")?.name ||
-        typeName;
-      typeCache.set(typeName, spanishName);
-      return spanishName;
-    } catch (error) {
-      console.error(`Error fetching type for ${typeName}:`, error);
-      return typeName;
-    }
-  };
-
+  // Cargar la lista básica de Pokémon
   useEffect(() => {
-    const fetchAllPokemons = async () => {
+    const fetchList = async () => {
       try {
-        const response = await axios.get(
-          "https://pokeapi.co/api/v2/pokemon?limit=1025"
-        );
-        const basicList = response.data.results;
-
-        const batchSize = 20;
-        const allPokemonDetails: Pokemon[] = [];
-        let initialBatchLoaded = false;
-
-        for (let i = 0; i < basicList.length; i += batchSize) {
-          const batch = basicList.slice(i, i + batchSize);
-          const batchDetails = await Promise.allSettled(
-            batch.map(async (pokemon: { name: string; url: string }) => {
-              try {
-                const id = parseInt(pokemon.url.split("/")[6], 10);
-                const detailsResponse = await axios.get(
-                  `https://pokeapi.co/api/v2/pokemon/${id}`
-                );
-
-                // Procesar tipos con cache
-                const types = await Promise.all(
-                  detailsResponse.data.types.map(async (t: PokemonType) => {
-                    const typeName = t.type.name;
-                    const translatedName = await getCachedTypeTranslation(
-                      typeName,
-                      t.type.url
-                    );
-                    return {
-                      slot: t.slot,
-                      type: {
-                        name: translatedName,
-                        url: t.type.url,
-                      },
-                    };
-                  })
-                );
-
-                return {
-                  name: detailsResponse.data.name,
-                  url: pokemon.url,
-                  id: detailsResponse.data.id,
-                  types,
-                  abilities: detailsResponse.data.abilities, // Mantenemos inglés temporalmente
-                  height: detailsResponse.data.height,
-                  weight: detailsResponse.data.weight,
-                };
-              } catch (error) {
-                console.error("Error processing Pokémon details:", error);
-                return null;
-              }
-            })
-          );
-
-          const validDetails = batchDetails
-            .filter(
-              (result) => result.status === "fulfilled" && result.value !== null
-            )
-            .map((result) => (result as PromiseFulfilledResult<Pokemon>).value);
-          allPokemonDetails.push(...validDetails);
-
-          if (!initialBatchLoaded) {
-            setPokemonList(validDetails);
-            setFilteredPokemon(validDetails);
-            setIsLoading(false);
-            initialBatchLoaded = true;
-          }
-        }
-
-        setPokemonList(allPokemonDetails);
-        setFilteredPokemon(allPokemonDetails);
-      } catch (error) {
-        console.error("Error fetching Pokémon list:", error);
-        setIsLoading(false);
+        const { data } = await api.get<PokeAPIListResponse>("/pokemon?limit=1025");
+        setBasicList(data.results);
+      } catch (err) {
+        setError("Error al cargar la lista básica de Pokémon: " + err);
+      } finally {
+        setIsLoadingList(false);
       }
     };
-
-    fetchAllPokemons();
+    fetchList();
   }, []);
 
+  // Cargar detalles para un conjunto de Pokémon, incluyendo la traducción de los types
+  const fetchDetailsForPage = async (pokemonSubset: typeof basicList) => {
+    const newDetails = new Map(pokemonDetails);
+    await Promise.all(
+      pokemonSubset.map(async (p) => {
+        const id = parseInt(p.url.split("/")[6], 10);
+        if (!newDetails.has(id)) {
+          try {
+            const { data } = await api.get<Pokemon>(p.url);
+            // Traducir cada type al español
+            const translatedTypes = await Promise.all(
+              data.types.map(async (t) => ({
+                slot: t.slot,
+                type: {
+                  ...t.type,
+                  name: await getTypeTranslation(t.type.url)
+                }
+              }))
+            );
+            // Crear el objeto Pokémon con los types traducidos
+            const pokemonWithTranslatedTypes = {
+              ...data,
+              types: translatedTypes
+            };
+            newDetails.set(id, pokemonWithTranslatedTypes);
+          } catch (err) {
+            console.error("Error fetching Pokémon", p.name, err);
+          }
+        }
+      })
+    );
+    setPokemonDetails(newDetails);
+  };
+
   return {
-    pokemonList,
-    filteredPokemon,
-    isLoading,
-    setFilteredPokemon,
+    basicList,
+    pokemonDetails,
+    isLoadingList,
+    error,
+    fetchDetailsForPage
   };
 };
 

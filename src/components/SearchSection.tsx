@@ -1,13 +1,13 @@
 // components/SearchSection.tsx
 import React from "react";
 import SearchBar from "./SearchBar";
-import { Pokemon } from "../interfaces/Pokemon";
+import { APIResource } from "../interfaces/Pokemon";
 
 interface SearchSectionProps {
   search: string;
   setSearch: (search: string) => void;
   handleSearch: () => void;
-  pokemonList: Pokemon[];
+  pokemonList: APIResource[];
 }
 
 const SearchSection: React.FC<SearchSectionProps> = ({
