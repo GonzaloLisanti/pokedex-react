@@ -1,26 +1,32 @@
 // components/PokemonList.tsx
 import React from "react";
 import PokemonCard from "./PokemonCard";
-import Pagination from "./Pagination";
 import { Pokemon } from "../interfaces/Pokemon";
 
 interface PokemonListProps {
   pokemonToShow: Pokemon[];
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  filteredPokemonGlobal: Pokemon[];
+  fetchPokemonBatch: () => void;
+  isLoadingList: boolean;
+  displayCount: number;
+  handleLoadMore: () => void;
 }
 
 const PokemonList: React.FC<PokemonListProps> = ({
   pokemonToShow,
-  currentPage,
-  totalPages,
-  onPageChange,
+  isLoadingList,
+  displayCount,
+  filteredPokemonGlobal,
+  handleLoadMore,
 }) => {
+  const uniquePokemon = Array.from(
+    new Map(pokemonToShow.map((p) => [p.id, p])).values()
+  );
+
   return (
     <>
       <div className="d-flex flex-wrap justify-content-center gap-1">
-        {pokemonToShow.map((pokemon) => (
+        {uniquePokemon.map((pokemon) => (
           <PokemonCard
             key={pokemon.id}
             name={pokemon.name}
@@ -30,12 +36,31 @@ const PokemonList: React.FC<PokemonListProps> = ({
           />
         ))}
       </div>
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={onPageChange}
-      />
+      <div className="d-flex justify-content-center mt-2 ">
+        {displayCount < filteredPokemonGlobal.length && (
+          <button
+            className="btn mb-4 lead rounded w-md-25"
+            onClick={(e) => {
+              e.preventDefault();
+              handleLoadMore();
+            }}
+            disabled={isLoadingList}
+            style={{
+              border: "2px solid #4f68f3",
+              backgroundColor: "#f6ff2e",
+              boxShadow: "0px 2px 25px rgba(0, 0, 0, 250)",
+              transition: "all 0.3s ease", // Agregado para mejor experiencia
+            }}
+          >
+            {isLoadingList ? (
+              <span className="lead">Cargando...</span>
+            ) : (
+              <span className="lead">Cargar más Pokémon</span>
+            )}
+            <i className="fs-4 ms-2 bi bi-plus-circle-dotted"></i>
+          </button>
+        )}
+      </div>
     </>
   );
 };
