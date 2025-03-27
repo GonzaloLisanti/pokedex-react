@@ -32,7 +32,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
       : borderColors[0];
 
   return (
-    <Link to={`/detalle/${id}`} className="d-flex justify-content-center">
+    <Link to={`/detalle/${id}`} className="d-flex justify-content-center  text-decoration-none">
       <div
         className="pokemon-card-container btn w-100"
         style={{ maxWidth: "450px" }}
