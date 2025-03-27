@@ -342,13 +342,79 @@ const DetailsPokemon: React.FC = () => {
       {/* Contenido principal */}
       <div className="row g-4">
         {/* Columna de imagen */}
-        <div className="col-md-5 mx-auto">
-          <img
-            src={pokemon.sprites.other["official-artwork"].front_default}
-            alt={pokemon.name}
-            className="img-fluid"
-            style={{ maxWidth: "400px", backgroundColor: "#f3f3f3" }}
-          />
+        <div className="col-md-5 mx-auto text-center">
+          {pokemon.types && (
+            <div
+              className="position-relative"
+              style={{
+                padding: "4px",
+                background:
+                  pokemon.types.length > 1
+                    ? `linear-gradient(90deg, ${
+                        TYPE_COLORS[
+                          EN_TO_ES[pokemon.types[0].type.name.toLowerCase()] ||
+                            "Normal"
+                        ]
+                      } 0%, ${
+                        TYPE_COLORS[
+                          EN_TO_ES[pokemon.types[1].type.name.toLowerCase()] ||
+                            "Normal"
+                        ]
+                      } 100%)`
+                    : TYPE_COLORS[
+                        EN_TO_ES[pokemon.types[0].type.name.toLowerCase()] ||
+                          "Normal"
+                      ],
+                borderRadius: "12px",
+                boxShadow: `
+          0 0 20px 5px ${
+            TYPE_COLORS[
+              EN_TO_ES[pokemon.types[0].type.name.toLowerCase()] || "Normal"
+            ]
+          }80
+          ${
+            pokemon.types.length > 1
+              ? `, 0 0 20px 5px ${
+                  TYPE_COLORS[
+                    EN_TO_ES[pokemon.types[1].type.name.toLowerCase()] ||
+                      "Normal"
+                  ]
+                }80`
+              : ""
+          }
+        `,
+                transition: "all 0.3s ease",
+              }}
+            >
+              <div
+                className="position-relative"
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  padding: "2px",
+                  overflow: "hidden",
+                }}
+              >
+                <div className="d-flex justify-content-center">
+                  <img
+                    src={
+                      pokemon.sprites.other["official-artwork"].front_default
+                    }
+                    alt={pokemon.name}
+                    className="img-fluid mx-auto"
+                    style={{
+                      maxWidth: "400px",
+                      width: "100%",
+                      maxHeight: "70vh",
+                      borderRadius: "6px",
+                      padding: "8px",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Estadísticas */}
           {pokemon.stats && (
             <div className="mt-2 pt-3">
@@ -567,7 +633,9 @@ const DetailsPokemon: React.FC = () => {
                       }}
                     />
                   </div>
-                  <p className="text-white mb-1 lead mt-2">{pokemon.name}</p>
+                  <p className="text-white mb-1 lead mt-2 text-capitalize">
+                    {pokemon.name}
+                  </p>
                   <small className="text-body-secondary">
                     N° {pokemon.id.toString().padStart(4, "0")}
                   </small>
