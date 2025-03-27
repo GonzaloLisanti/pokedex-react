@@ -609,7 +609,7 @@ const DetailsPokemon: React.FC = () => {
                             backgroundColor: "#ffffff",
                           }}
                         />
-                        <p className="text-white mb-0 small mt-1">
+                        <p className="text-white mb-0 small mt-1 text-capitalize">
                           {stage.name}
                         </p>
                         <small className="text-body-secondary">

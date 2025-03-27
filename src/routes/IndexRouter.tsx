@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "../pages/Home";
 import PokeDex from "../pages/PokeDex";
 import DetailsPokemon from "../components/DetailsPokemon";
+import About from "../components/About";
 
 const IndexRouter = () => {
   return (
@@ -12,7 +13,7 @@ const IndexRouter = () => {
         <Route path="/" element={<Home />} />
         <Route path="/pokédex" element={<PokeDex />} />
         <Route path="/detalle/:id" element={<DetailsPokemon/>}/>
-        {/*<Route path="/acerca-de" element={<PokeDex />} />*/}
+        <Route path="/acerca" element={<About/>} />
       </Routes>
     </>
   );

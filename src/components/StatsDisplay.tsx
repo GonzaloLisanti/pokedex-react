@@ -12,6 +12,15 @@ const STAT_COLORS: Record<string, string> = {
   "special-defense": "#78c850",
   speed: "#f85888",
 };
+// Traducciones al español
+const STAT_TRANSLATIONS: Record<string, string> = {
+  hp: "PS",
+  attack: "Ataque",
+  defense: "Defensa",
+  "special-attack": "Ataque Especial",
+  "special-defense": "Defensa Especial",
+  speed: "Velocidad",
+};
 
 const StatsDisplay: React.FC<StatsProps> = ({ stats }) => {
   return (
@@ -22,7 +31,7 @@ const StatsDisplay: React.FC<StatsProps> = ({ stats }) => {
           <div key={stat.name} className="mb-2">
             <div className="d-flex justify-content-between">
               <span className="text-capitalize lead text-body-secondary">
-                {stat.name.replace("-", " ")}
+                {STAT_TRANSLATIONS[stat.name] || stat.name.replace("-", " ")}
               </span>
               <span>{base_stat}</span>
             </div>

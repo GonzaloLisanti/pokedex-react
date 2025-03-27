@@ -32,8 +32,11 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
       : borderColors[0];
 
   return (
-    <Link to={`/detalle/${id}`}>
-      <div className="pokemon-card-container btn">
+    <Link to={`/detalle/${id}`} className="d-flex justify-content-center">
+      <div
+        className="pokemon-card-container btn w-100"
+        style={{ maxWidth: "450px" }}
+      >
         {!isLoaded && (
           <div className="pokemon-card-loader d-flex  justify-content-center">
             <div className="pokeLoader"></div>

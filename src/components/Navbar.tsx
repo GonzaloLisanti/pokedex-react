@@ -76,7 +76,7 @@ const Navbar: React.FC = () => {
           }}
         >
           <div className="navbar-nav ms-4">
-            {["Inicio", "Pokédex", "Acerca de"].map((text, index) => (
+            {["Inicio", "Pokédex", "Acerca"].map((text, index) => (
               <Link
                 key={index}
                 to={text === "Inicio" ? "/" : `/${text.toLowerCase()}`}
