@@ -26,10 +26,15 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setSearch(value);
 
     if (value.trim()) {
-      const filtered = pokemonList.filter(
-        (pokemon) =>
-          pokemon.name.toLowerCase().includes(value.toLowerCase()) 
-      );
+      const filtered = pokemonList.filter((pokemon) => {
+        // Extraer el ID de la URL
+        const id = pokemon.url.split("/")[6];
+        // Buscar coincidencias en nombre o ID
+        return (
+          pokemon.name.toLowerCase().includes(value.toLowerCase()) ||
+          id === value.toString()
+        );
+      });
       setSuggestions(filtered);
       setShowSuggestions(true);
     } else {
@@ -39,7 +44,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="input-group" style={{ width: "100%", maxWidth: "500px", position: "relative" }}>
+    <div
+      className="input-group"
+      style={{ width: "100%", maxWidth: "500px", position: "relative" }}
+    >
       <input
         style={{ fontFamily: "'Helvetica', sans-serif" }}
         type="text"
@@ -53,7 +61,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <button
         className="btn text-white bg-gradient"
         onClick={handleSearch}
-        style={{ fontFamily: "'Helvetica', sans-serif", backgroundColor: "rgba(255, 59, 48, 0.9)" }}
+        style={{
+          fontFamily: "'Helvetica', sans-serif",
+          backgroundColor: "rgba(255, 59, 48, 0.9)",
+        }}
       >
         <i className="bi bi-search"></i>
       </button>

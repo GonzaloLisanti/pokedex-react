@@ -8,68 +8,83 @@ import { ALL_TYPES } from "../utils/Types";
 import NoResultsMessage from "../components/NoResultsMessage";
 
 const PokeDex: React.FC = () => {
-  // Estados para búsqueda simple y filtros
+  // Estados para búsqueda simple
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [isCollapseOpen, setIsCollapseOpen] = useState(false);
 
-  // Estados para AdvancedFilters: "selected" (en tiempo real) y "applied" (cuando se pulsa "Aplicar Filtros")
+  // Filtros de tipos y debilidades
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedWeaknesses, setSelectedWeaknesses] = useState<string[]>([]);
   const [appliedTypes, setAppliedTypes] = useState<string[]>([]);
   const [appliedWeaknesses, setAppliedWeaknesses] = useState<string[]>([]);
 
+  // Filtro de habilidades
+  const [selectedAbility, setSelectedAbility] = useState<string>("");
+  const [appliedAbility, setAppliedAbility] = useState<string>("");
+
+  // Filtro de alturas (varias)
+  const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
+  const [appliedHeights, setAppliedHeights] = useState<string[]>([]);
+  // Filtro de Peso (varias)
+  const [selectedWeights, setSelectedWeights] = useState<string[]>([]);
+  const [appliedWeights, setAppliedWeights] = useState<string[]>([]);
+
   const limit = 20;
 
-  // Obtenemos datos del hook
+  // Hook con datos de Pokémon
   const {
-    fullList, // Lista completa (por ejemplo, 1025 Pokémon básicos) para filtrar globalmente
-    pokemonDetails, // Detalles completos de los Pokémon que se han cargado
+    fullList, // Lista básica de Pokémon
+    pokemonDetails, // Detalles completos (tipos, habilidades, etc.)
     isLoadingList,
     error,
     fetchDetailsForPage,
     fetchPokemonBatch,
   } = usePokemonData();
 
-  // Al iniciar, se carga el primer batch
+  // Al montar, cargar primer batch
   useEffect(() => {
     fetchPokemonBatch();
   }, []);
 
-  // Función de búsqueda simple
+  // Búsqueda simple
   const handleSearch = () => {
     setQuery(search.trim());
   };
 
-  // Alternar visibilidad de filtros avanzados
+  // Mostrar/ocultar panel de filtros avanzados
   const toggleCollapse = () => setIsCollapseOpen((prev) => !prev);
 
-  // Aplicar filtros avanzados: se actualizan los estados "applied" y se reinicia el display
+  // Aplicar filtros avanzados
   const handleApplyFilters = () => {
     setAppliedTypes(selectedTypes);
     setAppliedWeaknesses(selectedWeaknesses);
-    // Reiniciamos el contador de elementos a mostrar
+    setAppliedAbility(selectedAbility);
+    setAppliedHeights(selectedHeights);
+    setAppliedWeights(selectedWeights);
     setDisplayCount(limit);
   };
 
-  // Filtrar la lista básica (para búsqueda simple) usando fullList para abarcar TODOS los Pokémon
+  // Filtrar la lista básica para la búsqueda simple
   const filteredList = useMemo(() => {
     if (!query) return fullList;
-    return fullList.filter(
-      (pokemon) =>
+    return fullList.filter((pokemon) => {
+      const id = pokemon.url.split("/")[6];
+      return (
         pokemon.name.toLowerCase().includes(query.toLowerCase()) ||
-        pokemon.url.split("/")[6] === query
-    );
+        id === query.toString()
+      );
+    });
   }, [fullList, query]);
 
-  // Cada vez que filteredList cambie, cargamos detalles para TODOS esos Pokémon
+  // Cargar detalles de la lista filtrada
   useEffect(() => {
     if (filteredList.length > 0) {
       fetchDetailsForPage(filteredList);
     }
   }, [filteredList]);
 
-  // Construir la lista completa de Pokémon con detalles
+  // Construir objetos de Pokémon completos
   const allPokemon = useMemo(() => {
     return filteredList.map((p) => {
       const id = parseInt(p.url.split("/")[6], 10);
@@ -86,43 +101,101 @@ const PokeDex: React.FC = () => {
     });
   }, [filteredList, pokemonDetails]);
 
-  // Aplicar filtros avanzados sobre toda la lista
+  // Función para clasificar un Pokémon según su altura
+  const getHeightCategory = (pokemon: Pokemon): string => {
+    const meters = pokemon.height / 10; // height viene en decímetros
+    if (meters < 1) return "small";
+    if (meters <= 2) return "medium";
+    return "large";
+  };
+
+  // Función para clasificar el peso de un Pokémon (suponiendo que weight viene en hectogramos)
+  const getWeightCategory = (pokemon: Pokemon): string => {
+    // Ejemplo arbitrario:
+    // Liviano: menos de 50 hectogramos
+    // Medio: entre 50 y 200 hectogramos
+    // Pesado: más de 200 hectogramos
+    if (pokemon.weight < 50) return "light";
+    if (pokemon.weight <= 200) return "medium";
+    return "heavy";
+  };
+
+  // Filtrado avanzado global
   const filteredPokemonGlobal = useMemo(() => {
     return allPokemon.filter((pokemon) => {
+      // Filtro por tipo
       const typeMatch =
         appliedTypes.length === 0 ||
         pokemon.types.some((t) =>
           appliedTypes.includes(t.type.name.toLowerCase())
         );
+
+      // Filtro por debilidad
       const weaknessMatch =
         appliedWeaknesses.length === 0 ||
         ((pokemon as ExtendedPokemon).weaknesses || []).some((w) =>
           appliedWeaknesses.includes(w.toLowerCase())
         );
-      return typeMatch && weaknessMatch;
-    });
-  }, [allPokemon, appliedTypes, appliedWeaknesses]);
 
-  // Estado para controlar cuántos Pokémon filtrados se muestran
+      // Filtro por habilidad
+      const abilityMatch =
+        appliedAbility === "" ||
+        pokemon.abilities.some((a) => {
+          // Extraer ID de la habilidad
+          const segments = a.ability.url.split("/").filter(Boolean);
+          const abilityId = segments[segments.length - 1];
+          return abilityId === appliedAbility;
+        });
+
+      // Filtro por altura
+      const pokemonHeightCategory = getHeightCategory(pokemon);
+      const heightMatch =
+        appliedHeights.length === 0 ||
+        appliedHeights.includes(pokemonHeightCategory);
+
+      const pokemonWeightCategory = getWeightCategory(pokemon);
+      const weightMatch =
+        appliedWeights.length === 0 ||
+        appliedWeights.includes(pokemonWeightCategory);
+      return (
+        typeMatch && weaknessMatch && abilityMatch && heightMatch && weightMatch
+      );
+    });
+  }, [
+    allPokemon,
+    appliedTypes,
+    appliedWeaknesses,
+    appliedAbility,
+    appliedHeights,
+    appliedWeights,
+  ]);
+
+  // Paginación: cuántos Pokémon mostrar
   const [displayCount, setDisplayCount] = useState(limit);
 
-  // Lista final de Pokémon a mostrar (paginar el resultado filtrado globalmente)
+  // Lista final de Pokémon a mostrar (después de todos los filtros)
   const finalPokemonToShow = useMemo(() => {
     return filteredPokemonGlobal.slice(0, displayCount);
   }, [filteredPokemonGlobal, displayCount]);
 
-  // Función para cargar más resultados
+  // Cargar más
   const handleLoadMore = () => {
     setDisplayCount((prev) => prev + limit);
-    // Opcional: Si es necesario, carga más Pokémon a la lista básica
     fetchPokemonBatch();
   };
-  //Función para limpiar filtros
+
+  // Resetear todo
   const handleResetFilters = () => {
     setSelectedTypes([]);
     setSelectedWeaknesses([]);
     setAppliedTypes([]);
     setAppliedWeaknesses([]);
+    setSelectedAbility("");
+    setAppliedAbility("");
+    setSelectedHeights([]);
+    setAppliedHeights([]);
+    setSelectedWeights([]);
+    setAppliedWeights([]);
     setQuery("");
     setDisplayCount(limit);
   };
@@ -152,6 +225,24 @@ const PokeDex: React.FC = () => {
         className="d-flex flex-column align-items-center mb-3 rounded-bottom"
         style={{ backgroundColor: "#494a51" }}
       >
+        {isCollapseOpen && (
+          <AdvancedFilters
+            selectedTypes={selectedTypes}
+            setSelectedTypes={setSelectedTypes}
+            selectedWeaknesses={selectedWeaknesses}
+            setSelectedWeaknesses={setSelectedWeaknesses}
+            allTranslatedTypes={ALL_TYPES}
+            selectedAbility={selectedAbility}
+            setSelectedAbility={setSelectedAbility}
+            // Nuevo: arreglo de alturas
+            selectedHeights={selectedHeights}
+            setSelectedHeights={setSelectedHeights}
+            selectedWeights={selectedWeights}
+            setSelectedWeights={setSelectedWeights}
+            onApplyFilters={handleApplyFilters}
+            handleResetFilters={handleResetFilters}
+          />
+        )}
         <button
           className="btn w-100 lead text-white"
           aria-expanded={isCollapseOpen}
@@ -161,24 +252,15 @@ const PokeDex: React.FC = () => {
             borderBottomRightRadius: "0px",
           }}
         >
-          Búsqueda avanzada
+          {!isCollapseOpen
+            ? "Mostrar Búsqueda Avanzada"
+            : "Ocultar Búsqueda Avanzada"}
           <i
             className={`fs-4 ms-2 bi ${
               isCollapseOpen ? "bi-arrows-collapse" : "bi-arrows-expand"
             } fs-5`}
           ></i>
         </button>
-        {isCollapseOpen && (
-          <AdvancedFilters
-            selectedTypes={selectedTypes}
-            setSelectedTypes={setSelectedTypes}
-            selectedWeaknesses={selectedWeaknesses}
-            setSelectedWeaknesses={setSelectedWeaknesses}
-            allTranslatedTypes={ALL_TYPES}
-            onApplyFilters={handleApplyFilters}
-            handleResetFilters={handleResetFilters}
-          />
-        )}
       </div>
 
       {/* Lista de Pokémon y botón "Cargar más" */}

@@ -39,3 +39,24 @@ export const TYPE_COLORS: { [key: string]: string } = {
   Roca: "#dbc097",
   Agua: "#6ca6ff",
 };
+
+export const EN_TO_ES: { [key: string]: string } = {
+  normal: "Normal",
+  fire: "Fuego",
+  water: "Agua",
+  electric: "Eléctrico",
+  grass: "Planta",
+  ice: "Hielo",
+  fighting: "Lucha",
+  poison: "Veneno",
+  ground: "Tierra",
+  flying: "Volador",
+  psychic: "Psíquico",
+  bug: "Bicho",
+  rock: "Roca",
+  ghost: "Fantasma",
+  dragon: "Dragón",
+  dark: "Siniestro",
+  steel: "Acero",
+  fairy: "Hada",
+};

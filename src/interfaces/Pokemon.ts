@@ -22,6 +22,12 @@ export interface PokemonSprites {
   };
 }
 
+export interface PokemonStat {
+  base_stat: number;
+  effort: number;
+  stat: APIResource;
+}
+
 export interface Pokemon {
   id: number;
   name: string;
@@ -31,6 +37,7 @@ export interface Pokemon {
   height: number;
   weight: number;
   sprites: PokemonSprites;
+  stats?: PokemonStat[];
 }
 
 export interface ExtendedPokemon extends Pokemon {
@@ -71,4 +78,46 @@ export interface TypeData {
     language: APIResource;
     name: string;
   }>;
+}
+
+export interface SpeciesData {
+  genera: Array<{
+    genus: string;
+    language: APIResource;
+  }>;
+  flavor_text_entries: Array<{
+    flavor_text: string;
+    language: APIResource;
+    version: APIResource;
+  }>;
+  gender_rate: number;
+  // Agregar la propiedad evolution_chain
+  evolution_chain?: {
+    url: string;
+  };
+}
+
+export interface TranslatedData {
+  names: Array<{
+    language: APIResource;
+    name: string;
+  }>;
+}
+export interface EvolutionChainLink {
+  species: {
+    name: string;
+    url: string;
+  };
+  evolves_to: EvolutionChainLink[];
+}
+
+export interface EvolutionChainData {
+  chain: EvolutionChainLink;
+}
+
+export interface EvolutionStage {
+  id: number;
+  name: string;
+  image: string;
+  types: string[];
 }
