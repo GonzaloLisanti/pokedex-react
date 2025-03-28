@@ -1,54 +1,25 @@
-# React + TypeScript + Vite
+# Pokédex Digital
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una aplicación **React** y **TypeScript** que consume la [PokéAPI](https://pokeapi.co/) para mostrar información completa de Pokémon, incluyendo datos básicos, estadísticas, evoluciones, tipos, habilidades y más. El proyecto está diseñado con un enfoque responsive, utilizando **Vite** para el bundling y **Bootstrap 5** para los estilos.
 
-Currently, two official plugins are available:
+## Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Búsqueda Avanzada**: Filtrado por nombre, tipo, habilidades, altura, peso y más.
+- **Detalles del Pokémon**: Visualiza estadísticas, descripción, debilidades, evoluciones y detalles de habilidades (incluyendo traducciones al español con fallback a inglés).
+- **Cadena de Evolución**: Muestra la secuencia evolutiva del Pokémon con imágenes, tipos y número de identificación.
+- **Diseño Responsive**: Adaptado para funcionar tanto en dispositivos móviles como en escritorio.
+- **Consumo de API**: Utiliza la PokéAPI para obtener todos los datos actualizados de forma pública.
 
-## Expanding the ESLint configuration
+## Tecnologías Utilizadas
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React 19**
+- **React Router DOM 7**
+- **TypeScript**
+- **Axios** para las peticiones HTTP.
+- **Vite** como bundler.
+- **Bootstrap 5** para la interfaz y estilos.
+- **ESLint** y **typescript-eslint** para mantener un código limpio y consistente.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Licencia
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Este proyecto se distribuye bajo fines educativos y sin ánimo de lucro. Pokémon y todos los nombres relacionados son marcas registradas de Nintendo, Game Freak y The Pokémon Company. Este proyecto no tiene afiliación con dichas entidades.
