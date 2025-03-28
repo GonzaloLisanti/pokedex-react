@@ -4,17 +4,22 @@ import "./css/PokedexTitle.css";
 import "./css/Loader.css";
 import "./css/Card.css";
 import "./css/Suggestions.css";
-import "./css/PokeballShaking.css"
-
+import "./css/PokeballShaking.css";
+import { FilterProvider } from "./context/FiltersContext";
 import IndexRouter from "./routes/IndexRouter";
 import { BrowserRouter } from "react-router-dom";
+import { PokemonListProvider } from "./context/PokemonListContext";
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <IndexRouter />
-      </BrowserRouter>
+      <FilterProvider>
+        <PokemonListProvider>
+          <BrowserRouter>
+            <IndexRouter />
+          </BrowserRouter>
+        </PokemonListProvider>
+      </FilterProvider>
     </>
   );
 }

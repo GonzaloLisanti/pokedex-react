@@ -6,6 +6,7 @@ import AdvancedFilters from "../components/AdvancedFilters";
 import { Pokemon, ExtendedPokemon } from "../interfaces/Pokemon";
 import { ALL_TYPES } from "../utils/Types";
 import NoResultsMessage from "../components/NoResultsMessage";
+import { useFilters } from "../context/FiltersContext";
 
 const PokeDex: React.FC = () => {
   // Estados para búsqueda simple
@@ -13,21 +14,11 @@ const PokeDex: React.FC = () => {
   const [query, setQuery] = useState("");
   const [isCollapseOpen, setIsCollapseOpen] = useState(false);
 
-  // Filtros de tipos y debilidades
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedWeaknesses, setSelectedWeaknesses] = useState<string[]>([]);
+  // Estados locales "applied" (se actualizan al presionar "Buscar")
   const [appliedTypes, setAppliedTypes] = useState<string[]>([]);
   const [appliedWeaknesses, setAppliedWeaknesses] = useState<string[]>([]);
-
-  // Filtro de habilidades
-  const [selectedAbility, setSelectedAbility] = useState<string>("");
   const [appliedAbility, setAppliedAbility] = useState<string>("");
-
-  // Filtro de alturas (varias)
-  const [selectedHeights, setSelectedHeights] = useState<string[]>([]);
   const [appliedHeights, setAppliedHeights] = useState<string[]>([]);
-  // Filtro de Peso (varias)
-  const [selectedWeights, setSelectedWeights] = useState<string[]>([]);
   const [appliedWeights, setAppliedWeights] = useState<string[]>([]);
 
   const limit = 20;
@@ -42,6 +33,19 @@ const PokeDex: React.FC = () => {
     fetchPokemonBatch,
   } = usePokemonData();
 
+  const {
+    selectedTypes,
+    setSelectedTypes,
+    selectedWeaknesses,
+    setSelectedWeaknesses,
+    selectedAbility,
+    setSelectedAbility,
+    selectedHeights,
+    setSelectedHeights,
+    selectedWeights,
+    setSelectedWeights,
+  } = useFilters();
+
   // Al montar, cargar primer batch
   useEffect(() => {
     fetchPokemonBatch();
@@ -55,7 +59,6 @@ const PokeDex: React.FC = () => {
   // Mostrar/ocultar panel de filtros avanzados
   const toggleCollapse = () => setIsCollapseOpen((prev) => !prev);
 
-  // Aplicar filtros avanzados
   const handleApplyFilters = () => {
     setAppliedTypes(selectedTypes);
     setAppliedWeaknesses(selectedWeaknesses);
@@ -65,6 +68,15 @@ const PokeDex: React.FC = () => {
     setDisplayCount(limit);
   };
 
+  useEffect(() => {
+    // Solo al cargar el componente, asegurarse de que los filtros aplicados sean los guardados en el contexto
+    setAppliedTypes(selectedTypes);
+    setAppliedWeaknesses(selectedWeaknesses);
+    setAppliedAbility(selectedAbility);
+    setAppliedHeights(selectedHeights);
+    setAppliedWeights(selectedWeights);
+  }, []);
+  
   // Filtrar la lista básica para la búsqueda simple
   const filteredList = useMemo(() => {
     if (!query) return fullList;
@@ -234,7 +246,6 @@ const PokeDex: React.FC = () => {
             allTranslatedTypes={ALL_TYPES}
             selectedAbility={selectedAbility}
             setSelectedAbility={setSelectedAbility}
-            // Nuevo: arreglo de alturas
             selectedHeights={selectedHeights}
             setSelectedHeights={setSelectedHeights}
             selectedWeights={selectedWeights}
